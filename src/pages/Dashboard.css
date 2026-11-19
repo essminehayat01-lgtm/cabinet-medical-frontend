@@ -1,0 +1,50 @@
+.dashboard-grille {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+}
+.dashboard-grille .carte {
+  display: flex;
+  flex-direction: column;
+  min-height: 320px;
+}
+
+.carte-entete {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 12px;
+}
+.carte-entete h3 { margin: 0; }
+.date-jour { font-size: 13px; color: #64748b; }
+
+.ligne {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+.ligne-titre { 
+    font-weight: bold;
+    color: #0f172a; 
+    text-decoration: none; }
+.ligne-detail { font-size: 13px; color: #64748b; }
+.heure {
+  background: #2563eb;
+  color: white;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 13px;
+  font-weight: bold;
+}
+.vide { color: #64748b; }
+
+.carte-lien {
+  margin-top: auto;
+  padding-top: 16px;
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: bold;
+  text-align: center;
+}

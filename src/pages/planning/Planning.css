@@ -1,0 +1,53 @@
+.planning-filtres { display: flex; gap: 10px; flex-wrap: wrap; }
+.planning-filtres select,
+.planning-filtres input {
+  padding: 6px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 20px;
+}
+
+.cal-barre {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.cal-nav { display: flex; align-items: center; gap: 10px; }
+.cal-nav h3 { margin: 0 0 0 10px; }
+.cal-modes { display: flex; gap: 6px; }
+
+.cal-conteneur { overflow-x: auto; }
+.cal { display: grid; border-top: 1px solid #e2e8f0; border-left: 1px solid #e2e8f0; }
+.cal-7 { grid-template-columns: 70px repeat(7, minmax(120px, 1fr)); }
+.cal-1 { grid-template-columns: 70px 1fr; }
+
+.cal-coin, .cal-jour, .cal-heure, .cal-cell {
+  border-right: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 6px;
+}
+.cal-jour { text-align: center; display: flex; flex-direction: column; }
+.cal-nom { text-transform: capitalize; font-weight: bold; }
+.cal-num { color: #64748b; }
+.cal-heure { font-size: 12px; color: #64748b; }
+.cal-cell { min-height: 64px; display: flex; flex-direction: column; gap: 4px; }
+
+
+.cal-aujourdhui { background: #dbeafe; }
+
+.cal-rdv {
+  background: #2563eb;
+  color: white;
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+}
+.cal-libre {
+  background: #f8fafc;
+  color: #64748b;
+  border: 1px dashed #cbd5e1;
+}

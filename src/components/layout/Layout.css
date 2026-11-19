@@ -1,0 +1,116 @@
+.app { 
+    display: flex; 
+    min-height: 100vh; 
+}
+
+.sidebar {
+  width: 240px;
+  background: #0a2341;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  padding: 20px 14px;
+  box-sizing: border-box;
+}
+.sidebar-logo { 
+    font-size: 18px; 
+    font-weight: bold; 
+    padding: 0 10px 24px; }
+.sidebar-nav { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 4px; }
+
+.lien {
+  color: #cbd5e1;
+  text-decoration: none;
+  padding: 10px 12px;
+  border-radius: 8px;
+}
+.lien:hover { 
+    background: rgba(255, 255, 255, 0.08); }
+.lien.actif { 
+    background: #64748b; 
+    color: white; }
+
+.sidebar-logout {
+  margin-top: auto;
+  background: transparent;
+  color: #cbd5e1;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 8px;
+  padding: 10px;
+  cursor: pointer;
+}
+.sidebar-logout:hover { 
+    background: rgba(255, 255, 255, 0.08); 
+}
+
+.contenu {
+  flex: 1;
+  min-width: 0;
+  background: #f4f6fa;
+  display: flex;
+  flex-direction: column;
+}
+.topbar {
+  display: flex;
+  justify-content: flex-end;
+  background: white;
+  padding: 12px 24px;
+  border-bottom: 1px solid #e2e8f0;
+}
+.topbar-droite { 
+    display: flex; 
+    align-items: center; 
+    gap: 20px; }
+.profil { 
+    display: flex; 
+    align-items: center; 
+    gap: 10px; }
+.profil-nom { 
+    font-weight: bold; 
+    font-size: 14px; }
+.profil-role { 
+    font-size: 12px; 
+    color: #64748b; }
+.page { padding: 24px; }
+
+.cloche { position: relative; }
+.cloche-btn {
+  position: relative;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+.cloche-badge {
+  position: absolute;
+  top: -6px;
+  right: -8px;
+  background: #dc2626;
+  color: white;
+  font-size: 11px;
+  border-radius: 10px;
+  padding: 1px 6px;
+}
+.cloche-liste {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  width: 320px;
+  max-height: 300px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  padding: 8px 12px;
+  z-index: 100;
+  font-size: 13px;
+}
+.notif { margin: 8px 0; }
+.non-lue { font-weight: bold; }
