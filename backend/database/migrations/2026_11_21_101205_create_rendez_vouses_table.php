@@ -12,17 +12,17 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('rendez_vous', function (Blueprint $table) {
-        $table->id();
-        $table->foreignId('patient_id')->nullable()->constrained('patients')->nullOnDelete();
-        $table->date('date');
-        $table->time('heure');
-        $table->string('motif')->nullable();
-        $table->enum('statut', ['libre', 'planifie'])->default('libre');
-        $table->timestamps();
+            $table->id();
+            $table->foreignId('patient_id')->nullable()->constrained('patients')->nullOnDelete();
+            $table->date('date');
+            $table->time('heure');
+            $table->string('motif')->nullable();
+            $table->enum('statut', ['libre', 'planifie'])->default('libre');
+            $table->timestamps();
 
-        $table->unique(['date', 'heure']);
-    });      
-       
+            $table->unique(['date', 'heure']);
+        });
+
     }
 
     /**

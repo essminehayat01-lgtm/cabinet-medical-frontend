@@ -1,59 +1,39 @@
 import { createContext, useContext, useState } from 'react';
+import api from '../api/api';
 
 const AuthContext = createContext();
 
-const USERS_INIT = [
-  { id: 1, nom: 'Dr. Alaoui', email: 'medecin@cabinet.ma', password: '1234', role: 'medecin' },
-  { id: 2, nom: 'Salma', email: 'assistant@cabinet.ma', password: '1234', role: 'assistant' },
-];
-
 export function AuthProvider({ children }) {
-  const [users, setUsers] = useState(USERS_INIT);
-
   const [user, setUser] = useState(() => {
     const saved = localStorage.getItem('user');
     return saved ? JSON.parse(saved) : null;
   });
 
-  const login = (email, password) => {
-    const found = users.find(u => u.email === email && u.password === password);
-    if (!found) return false;
-    setUser(found);
-    localStorage.setItem('user', JSON.stringify(found));
-    return true;
+  const login = async (email, password) => {
+    try {
+      const res = await api.post('/login', { email, password });
+      localStorage.setItem('token', res.data.token);
+      localStorage.setItem('user', JSON.stringify(res.data.user));
+      setUser(res.data.user);
+      return true;
+    } catch (erreur) {
+      return false;
+    }
   };
 
-  const logout = () => {
-    setUser(null);
+  const logout = async () => {
+    try {
+      await api.post('/logout');
+    } catch (erreur) {
+      // token deja ma b9ach s7i7: n'khrjo b7alma
+    }
+    localStorage.removeItem('token');
     localStorage.removeItem('user');
-  };
-
-  const inscrireMedecin = data => {
-    setUsers(prev => [...prev, { id: Date.now(), role: 'medecin', ...data }]);
-  };
-
-  const assistants = users.filter(u => u.role === 'assistant');
-
-  const ajouterAssistant = data => {
-    setUsers(prev => [...prev, { id: Date.now(), role: 'assistant', ...data }]);
-  };
-
-  const modifierAssistant = (id, data) => {
-    setUsers(prev => prev.map(u => (u.id === id ? { ...u, ...data } : u)));
-  };
-
-  const supprimerAssistant = id => {
-    setUsers(prev => prev.filter(u => u.id !== id));
+    setUser(null);
   };
 
   return (
-    <AuthContext.Provider
-      value={{
-        user, users, assistants,
-        login, logout, inscrireMedecin,
-        ajouterAssistant, modifierAssistant, supprimerAssistant,
-      }}
-    >
+    <AuthContext.Provider value={{ user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

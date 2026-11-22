@@ -12,13 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('ordonnance_medicaments', function (Blueprint $table) {
-        $table->id();
-        $table->foreignId('ordonnance_id')->constrained('ordonnances')->cascadeOnDelete();
-        $table->string('nom');
-        $table->string('dosage')->nullable();
-        $table->string('duree')->nullable();
-        $table->timestamps();
-    });
+            $table->id();
+            $table->foreignId('ordonnance_id')->constrained('ordonnances')->cascadeOnDelete();
+            $table->string('nom');
+            $table->string('dosage')->nullable();
+            $table->string('duree')->nullable();
+            $table->timestamps();
+        });
     }
 
     /**

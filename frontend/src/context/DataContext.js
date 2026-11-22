@@ -2,20 +2,9 @@ import { createContext, useContext, useState } from 'react';
 
 const DataContext = createContext();
 
-const PATIENTS_INIT = [
-  { id: 1, nom: 'Alami', prenom: 'Sara', sexe: 'F', dateNaissance: '1995-03-12', telephone: '0612345678', adresse: 'Agadir', creeLe: '2026-11-01' },
-  { id: 2, nom: 'Bennani', prenom: 'Youssef', sexe: 'M', dateNaissance: '1988-07-25', telephone: '0623456789', adresse: 'Inezgane', creeLe: '2026-11-05' },
-  { id: 3, nom: 'Idrissi', prenom: 'Khadija', sexe: 'F', dateNaissance: '2001-11-02', telephone: '0634567890', adresse: 'Taghazout', creeLe: '2026-11-10' },
-];
+const PATIENTS_INIT = [];
 
-const DOSSIERS_INIT = PATIENTS_INIT.map(p => ({
-  id: p.id,
-  patientId: p.id,
-  groupeSanguin: '',
-  allergies: '',
-  antecedents: '',
-  notes: '',
-}));
+const DOSSIERS_INIT = [];
 
 function genererCreneaux() {
   const heures = ['09:00', '10:00', '11:00','12:00', '14:00' , '15:00'];

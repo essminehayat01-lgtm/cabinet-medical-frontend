@@ -4,7 +4,6 @@ import { DataProvider } from './context/DataContext';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import Layout from './components/layout/Layout';
 import Login from './pages/authentification/Login';
-import Register from './pages/authentification/Register';
 import Dashboard from './pages/Dashboard';
 import PatientList from './pages/patients/PatientList';
 import PatientForm from './pages/patients/PatientForm';
@@ -30,8 +29,6 @@ function App() {
           <Routes>
             {/* Accessibles bla login */}
             <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-
             <Route element={<ProtectedRoute />}>
               <Route element={<Layout />}>
                 <Route path="/" element={<Accueil />} />

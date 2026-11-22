@@ -1,67 +1,59 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import api from '../../api/api';
 
 function AssistantForm() {
   const { id } = useParams();
   const modeEdition = Boolean(id);
-
-  const { users, ajouterAssistant, modifierAssistant } = useAuth();
   const navigate = useNavigate();
 
-  const assistant = modeEdition
-    ? users.find(u => u.id === Number(id) && u.role === 'assistant')
-    : null;
-
-  const [form, setForm] = useState(
-    assistant
-      ? { nom: assistant.nom, email: assistant.email, password: '' }
-      : { nom: '', email: '', password: '' }
-  );
+  const [form, setForm] = useState({ nom: '', email: '', password: '' });
   const [erreurs, setErreurs] = useState({});
+  const [chargement, setChargement] = useState(modeEdition);
 
-  if (modeEdition && !assistant) return <p>Assistant introuvable.</p>;
+  // F modifier: kanjibo l'assistant mn Laravel
+  useEffect(() => {
+    if (!modeEdition) return;
+
+    api
+      .get('/assistants/' + id)
+      .then(res =>
+        setForm({ nom: res.data.nom, email: res.data.email, password: '' })
+      )
+      .catch(() => navigate('/assistants'))
+      .finally(() => setChargement(false));
+  }, [id, modeEdition, navigate]);
 
   const handleChange = e => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const valider = () => {
-    const e = {};
-    const idCourant = assistant ? assistant.id : null;
-
-    if (form.nom.trim().length < 3) e.nom = 'Nom obligatoire (3 caractères minimum)';
-
-    if (!/^\S+@\S+\.\S+$/.test(form.email)) {
-      e.email = 'Email invalide';
-    } else if (users.some(u => u.email === form.email && u.id !== idCourant)) {
-      e.email = 'Cet email est déjà utilisé';
-    }
-
-    if (!modeEdition && form.password.length < 8) {
-      e.password = 'Mot de passe obligatoire (8 caractères minimum)';
-    }
-    if (modeEdition && form.password && form.password.length < 8) {
-      e.password = 'Mot de passe trop court (8 caractères minimum)';
-    }
-    return e;
-  };
-
-  const handleSubmit = e => {
+  const handleSubmit = async e => {
     e.preventDefault();
-    const e2 = valider();
-    setErreurs(e2);
-    if (Object.keys(e2).length > 0) return;
+    setErreurs({});
 
-    if (modeEdition) {
-      const data = { nom: form.nom, email: form.email };
-      if (form.password) data.password = form.password; // ghir ila ktb wa7ed jdid
-      modifierAssistant(assistant.id, data);
-    } else {
-      ajouterAssistant(form);
+    try {
+      if (modeEdition) {
+        await api.put('/assistants/' + id, form);
+      } else {
+        await api.post('/assistants', form);
+      }
+      navigate('/assistants');
+    } catch (err) {
+      // 422 = Laravel validation: { errors: { email: ['...'] } }
+      if (err.response && err.response.status === 422) {
+        const e422 = {};
+        Object.entries(err.response.data.errors).forEach(([champ, messages]) => {
+          e422[champ] = messages[0];
+        });
+        setErreurs(e422);
+      } else {
+        setErreurs({ general: 'Une erreur est survenue.' });
+      }
     }
-    navigate('/assistants');
   };
+
+  if (chargement) return <p>Chargement...</p>;
 
   return (
     <form className="form" onSubmit={handleSubmit}>
@@ -82,6 +74,8 @@ function AssistantForm() {
         onChange={handleChange}
       />
       {erreurs.password && <p className="erreur">{erreurs.password}</p>}
+
+      {erreurs.general && <p className="erreur">{erreurs.general}</p>}
 
       <div className="boutons">
         <button className="btn btn-primary" type="submit">

@@ -9,10 +9,10 @@ function Layout() {
   const navigate = useNavigate();
   const estMedecin = user.role === 'medecin';
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
+  const handleLogout = async () => {
+  await logout();
+  navigate('/login');
+};
 
   const classeLien = ({ isActive }) => (isActive ? 'lien actif' : 'lien');
 

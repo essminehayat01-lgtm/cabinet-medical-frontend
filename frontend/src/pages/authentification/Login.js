@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import './Login.css';
 
@@ -13,8 +13,9 @@ function Login() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = e => { e.preventDefault();
-    const ok = login(form.email, form.password);
+  const handleSubmit = async e => {
+    e.preventDefault();
+    const ok = await login(form.email, form.password);
     if (ok) {
       navigate('/');
     } else {
@@ -35,7 +36,7 @@ function Login() {
             className="champ"
             name="email"
             type="email"
-            placeholder="Saisir votre email "
+            placeholder="Saisir votre email"
             onChange={handleChange}
           />
 
@@ -54,11 +55,6 @@ function Login() {
             Se connecter
           </button>
         </form>
-
-        <p className="auth-separateur">Pas encore de compte ?</p>
-        <Link to="/register" className="btn btn-bloc auth-creer">
-          Créer un compte
-        </Link>
       </div>
     </div>
   );
