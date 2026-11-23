@@ -14,7 +14,6 @@ class AssistantRequest extends FormRequest
 
     public function rules(): array
     {
-        // Kayn ghir f modifier (route /assistants/{id})
         $id = $this->route('id');
 
         return [

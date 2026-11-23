@@ -12,7 +12,6 @@ class AssistantService
         return User::where('role', 'assistant')->orderBy('nom')->get();
     }
 
-    // Ghir les assistants: l'médecin ma yt'lm'ssch hna
     public function trouver(int $id): User
     {
         return User::where('role', 'assistant')->findOrFail($id);
@@ -35,7 +34,6 @@ class AssistantService
         $assistant->nom = $donnees['nom'];
         $assistant->email = $donnees['email'];
 
-        // Mot de passe khawi = ma nbdlouhch
         if (! empty($donnees['password'])) {
             $assistant->password = $donnees['password'];
         }
@@ -48,8 +46,6 @@ class AssistantService
     public function supprimer(int $id): void
     {
         $assistant = $this->trouver($id);
-
-        // Kay'khsr l'accès dyalo hta ila kan connecté
         $assistant->tokens()->delete();
         $assistant->delete();
     }

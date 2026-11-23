@@ -22,7 +22,6 @@ class Ordonnance extends Model
         return $this->belongsTo(Patient::class);
     }
 
-    // Le médecin li kteb l'ordonnance
     public function medecin(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');

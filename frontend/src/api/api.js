@@ -8,7 +8,6 @@ const api = axios.create({
   },
 });
 
-// Koul mra n-sifto request, n-zido l-token dyal l-user
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
@@ -16,7 +15,6 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
-// Ila token ma b9ach s7i7 (mital mn ba3d migrate:fresh), n'khrjo l'login
 api.interceptors.response.use(
   res => res,
   err => {

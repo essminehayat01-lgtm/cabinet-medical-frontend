@@ -11,7 +11,6 @@ function AssistantForm() {
   const [erreurs, setErreurs] = useState({});
   const [chargement, setChargement] = useState(modeEdition);
 
-  // F modifier: kanjibo l'assistant mn Laravel
   useEffect(() => {
     if (!modeEdition) return;
 
@@ -40,7 +39,6 @@ function AssistantForm() {
       }
       navigate('/assistants');
     } catch (err) {
-      // 422 = Laravel validation: { errors: { email: ['...'] } }
       if (err.response && err.response.status === 422) {
         const e422 = {};
         Object.entries(err.response.data.errors).forEach(([champ, messages]) => {

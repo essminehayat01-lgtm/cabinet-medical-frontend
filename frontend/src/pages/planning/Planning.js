@@ -4,7 +4,7 @@ import './Planning.css';
 
 const HEURES = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
 
-const formater = d => d.toLocaleDateString('en-CA'); // YYYY-MM-DD
+const formater = d => d.toLocaleDateString('en-CA');
 
 const ajouterJours = (d, n) => {
   const r = new Date(d);

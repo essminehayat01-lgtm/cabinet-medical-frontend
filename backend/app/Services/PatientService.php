@@ -20,8 +20,6 @@ class PatientService
             ->orderBy('nom')
             ->get();
     }
-
-    // Règle métier: kol patient jdid kay'cree dossier khawi m3ah
     public function creer(array $donnees): Patient
     {
         return DB::transaction(function () use ($donnees) {
@@ -38,8 +36,6 @@ class PatientService
 
         return $patient;
     }
-
-    // Règle métier: les créneaux dyal had patient kayrj3o libres
     public function supprimer(Patient $patient): void
     {
         DB::transaction(function () use ($patient) {
