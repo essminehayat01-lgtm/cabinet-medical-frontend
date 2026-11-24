@@ -10,7 +10,7 @@ class PatientService
 {
     public function lister(?string $recherche = null): Collection
     {
-        return Patient::query()
+        return Patient::with('dossier')
             ->when($recherche, function ($requete) use ($recherche) {
                 $requete->where(function ($q) use ($recherche) {
                     $q->where('nom', 'like', "%{$recherche}%")

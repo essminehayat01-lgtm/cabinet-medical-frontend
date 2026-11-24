@@ -1,14 +1,11 @@
 import { useState } from 'react';
-import { useData } from '../context/DataContext';
 
-function NotificationBell() {
-  const { notifications, marquerNotificationsLues } = useData();
+function NotificationBell({ notifications, onMarquerLues }) {
   const [ouvert, setOuvert] = useState(false);
 
   const nonLues = notifications.filter(n => !n.lu).length;
-
   const toggle = () => {
-    if (ouvert) marquerNotificationsLues();
+    if (ouvert) onMarquerLues();
     setOuvert(!ouvert);
   };
 
@@ -22,7 +19,7 @@ function NotificationBell() {
       {ouvert && (
         <div className="cloche-liste">
           {notifications.length === 0 && <p>Aucune notification.</p>}
-          {[...notifications].reverse().map(n => (
+          {notifications.map(n => (
             <p key={n.id} className={n.lu ? 'notif' : 'notif non-lue'}>
               {n.message}
             </p>

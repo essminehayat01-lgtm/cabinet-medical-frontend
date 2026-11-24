@@ -1,23 +1,24 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useData } from '../../context/DataContext';
-import { useAuth } from '../../context/AuthContext';
+import api from '../../api/api';
 
 const LIGNE_VIDE = { nom: '', dosage: '', duree: '' };
 
 function OrdonnanceForm() {
   const { patientId } = useParams();
-  const { patients, ajouterOrdonnance } = useData();
-  const { user } = useAuth();
   const navigate = useNavigate();
 
-  const patient = patients.find(p => p.id === Number(patientId));
-
+  const [patient, setPatient] = useState(null);
   const [medicaments, setMedicaments] = useState([{ ...LIGNE_VIDE }]);
   const [remarques, setRemarques] = useState('');
   const [erreur, setErreur] = useState('');
 
-  if (!patient) return <p>Patient introuvable.</p>;
+  useEffect(() => {
+    api
+      .get('/patients/' + patientId)
+      .then(res => setPatient(res.data))
+      .catch(() => navigate('/dossiers'));
+  }, [patientId, navigate]);
 
   const changerLigne = (index, champ, valeur) => {
     setMedicaments(
@@ -31,24 +32,28 @@ function OrdonnanceForm() {
     setMedicaments(medicaments.filter((m, i) => i !== index));
   };
 
-  const handleSubmit = e => {
+  const handleSubmit = async e => {
     e.preventDefault();
-
+    setErreur('');
     const lignes = medicaments.filter(m => m.nom.trim() !== '');
     if (lignes.length === 0) {
       setErreur('Ajoutez au moins un médicament');
       return;
     }
 
-    ajouterOrdonnance({
-      patientId: patient.id,
-      date: new Date().toLocaleDateString('en-CA'),
-      medecinNom: user.nom,
-      medicaments: lignes,
-      remarques,
-    });
-    navigate('/dossiers/' + patient.id);
+    try {
+      await api.post('/patients/' + patientId + '/ordonnances', {
+        medicaments: lignes,
+        remarques,
+      });
+      navigate('/dossiers/' + patientId);
+    } catch (err) {
+      const erreurs = err.response && err.response.data && err.response.data.errors;
+      setErreur(erreurs ? Object.values(erreurs)[0][0] : "Enregistrement impossible.");
+    }
   };
+
+  if (!patient) return <p>Chargement...</p>;
 
   return (
     <form className="form form-large" onSubmit={handleSubmit}>
@@ -93,9 +98,7 @@ function OrdonnanceForm() {
         + Ajouter un médicament
       </button>
 
-      {erreur && <p className="erreur">{erreur}</p>}
-
-      <label style={{ marginTop: 16 }}>Remarques (optionnel)</label>
+      <label>Remarques (optionnel)</label>
       <textarea
         className="champ"
         rows="3"
@@ -103,9 +106,11 @@ function OrdonnanceForm() {
         onChange={e => setRemarques(e.target.value)}
       />
 
+      {erreur && <p className="erreur">{erreur}</p>}
+
       <div className="boutons">
         <button className="btn btn-primary" type="submit">Enregistrer</button>
-        <button className="btn" type="button" onClick={() => navigate('/dossiers/' + patient.id)}>
+        <button className="btn" type="button" onClick={() => navigate('/dossiers/' + patientId)}>
           Annuler
         </button>
       </div>

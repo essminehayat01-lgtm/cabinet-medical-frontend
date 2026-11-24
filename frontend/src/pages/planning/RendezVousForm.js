@@ -1,76 +1,157 @@
-import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useData } from '../../context/DataContext';
+import { useEffect, useState } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import api from '../../api/api';
+
+const HORIZON_JOURS = 180;
+
+const formater = d => d.toLocaleDateString('en-CA'); // YYYY-MM-DD
 
 function RendezVousForm() {
-  const { patientId } = useParams();
-  const { patients, rendezVous, reserverRendezVous } = useData();
+  const { patientId, rdvId } = useParams();
+  const location = useLocation();
   const navigate = useNavigate();
 
+  const modeModification = Boolean(rdvId);
+  const rdvActuel = location.state ? location.state.rdv : null;
+
+  const [patient, setPatient] = useState(null);
+  const [date, setDate] = useState('');
+  const [creneaux, setCreneaux] = useState([]);
   const [choisi, setChoisi] = useState(null);
-  const [motif, setMotif] = useState('');
+  const [motif, setMotif] = useState(rdvActuel ? rdvActuel.motif || '' : '');
   const [erreur, setErreur] = useState('');
+  const [chargement, setChargement] = useState(false);
 
-  const patient = patients.find(p => p.id === Number(patientId));
-  if (!patient) return <p>Patient introuvable.</p>;
+  useEffect(() => {
+    if (modeModification && !rdvActuel) navigate('/planning');
+  }, [modeModification, rdvActuel, navigate]);
 
-  const libres = rendezVous
-    .filter(r => r.statut === 'libre')
-    .sort((a, b) => (a.date + a.heure).localeCompare(b.date + b.heure));
+  useEffect(() => {
+    if (modeModification) {
+      if (rdvActuel) setPatient(rdvActuel.patient);
+      return;
+    }
 
-  const handleSubmit = e => {
+    api
+      .get('/patients/' + patientId)
+      .then(res => setPatient(res.data))
+      .catch(() => navigate('/patients'));
+  }, [modeModification, rdvActuel, patientId, navigate]);
+
+    useEffect(() => {
+    if (!date) {
+      setCreneaux([]);
+      return;
+    }
+
+    setChargement(true);
+    setChoisi(null);
+
+    api
+      .get('/rendez-vous', { params: { du: date, au: date, statut: 'libre' } })
+      .then(res => setCreneaux(res.data))
+      .catch(() => setErreur('Impossible de charger les créneaux.'))
+      .finally(() => setChargement(false));
+  }, [date]);
+
+  if (!patient) return <p>Chargement...</p>;
+
+  const aujourdhui = new Date();
+  const limite = new Date();
+  limite.setDate(limite.getDate() + HORIZON_JOURS);
+
+  const jourSemaine = date ? new Date(date + 'T12:00:00').getDay() : null;
+  const weekend = jourSemaine === 0 || jourSemaine === 6;
+
+  const handleSubmit = async e => {
     e.preventDefault();
-    if (choisi === null) {
+    setErreur('');
+    if (!choisi && !modeModification) {
       setErreur('Veuillez choisir un créneau');
       return;
     }
-    reserverRendezVous(choisi, patient.id, motif);
-    navigate('/planning');
+
+    try {
+      if (modeModification) {
+        await api.put('/rendez-vous/' + rdvId, { creneau_id: choisi, motif });
+      } else {
+        await api.post('/rendez-vous/' + choisi + '/reserver', {
+          patient_id: patient.id,
+          motif,
+        });
+      }
+      navigate('/planning');
+    } catch (err) {
+      const erreursLaravel = err.response && err.response.data && err.response.data.errors;
+      setErreur(erreursLaravel ? Object.values(erreursLaravel)[0][0] : 'Une erreur est survenue.');
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Choisir un rendez-vous</h2>
-      <p>Patient : <strong>{patient.nom} {patient.prenom}</strong></p>
-
-      <table border="1" cellPadding="8" style={{ borderCollapse: 'collapse' }}>
-        <thead>
-          <tr><th></th><th>Date</th><th>Heure</th></tr>
-        </thead>
-        <tbody>
-          {libres.map(c => (
-            <tr key={c.id}>
-              <td>
-                <input
-                  type="radio"
-                  name="creneau"
-                  checked={choisi === c.id}
-                  onChange={() => setChoisi(c.id)}
-                />
-              </td>
-              <td>{c.date}</td>
-              <td>{c.heure}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      {libres.length === 0 && <p>Aucun créneau libre.</p>}
-      {erreur && <p style={{ color: 'red' }}>{erreur}</p>}
-
+    <form className="carte rdv-form" onSubmit={handleSubmit}>
+      <h2>{modeModification ? 'Modifier le rendez-vous' : 'Choisir un rendez-vous'}</h2>
       <p>
+        Patient : <strong>{patient.nom} {patient.prenom}</strong>
+      </p>
+
+      {modeModification && (
+        <p>
+          Rendez-vous actuel : <strong>{rdvActuel.date} à {rdvActuel.heure}</strong>
+        </p>
+      )}
+
+      <label>{modeModification ? 'Nouvelle date (optionnel)' : 'Date'}</label>
+      <input
+        className="recherche"
+        type="date"
+        value={date}
+        min={formater(aujourdhui)}
+        max={formater(limite)}
+        onChange={e => setDate(e.target.value)}
+      />
+
+      {chargement && <p>Chargement...</p>}
+
+      {date && !chargement && weekend && <p>Le cabinet est fermé le week-end.</p>}
+
+      {date && !chargement && !weekend && creneaux.length === 0 && (
+        <p>Aucun créneau libre ce jour-là.</p>
+      )}
+
+      <div className="creneaux">
+        {creneaux.map(c => (
+          <button
+            type="button"
+            key={c.id}
+            className={choisi === c.id ? 'creneau actif' : 'creneau'}
+            onClick={() => setChoisi(c.id)}
+          >
+            {c.heure}
+          </button>
+        ))}
+      </div>
+
+      <div className="form">
         <input
+          className="champ"
           placeholder="Motif (optionnel)"
           value={motif}
           onChange={e => setMotif(e.target.value)}
-          style={{ padding: 6, width: 300 }}
         />
-      </p>
+      </div>
 
-      <button type="submit">Enregistrer</button>
-      <button type="button" onClick={() => navigate('/patients')} style={{ marginLeft: 10 }}>
-        Plus tard
-      </button>
+      {erreur && <p className="erreur">{erreur}</p>}
+
+      <div className="boutons">
+        <button className="btn btn-primary" type="submit">Enregistrer</button>
+        <button
+          className="btn"
+          type="button"
+          onClick={() => navigate(modeModification ? '/planning' : '/patients')}
+        >
+          {modeModification ? 'Annuler' : 'Plus tard'}
+        </button>
+      </div>
     </form>
   );
 }

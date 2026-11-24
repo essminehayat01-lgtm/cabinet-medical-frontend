@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -16,6 +17,11 @@ class RendezVous extends Model
         return [
             'date' => 'date:Y-m-d',
         ];
+    }
+
+    protected function heure(): Attribute
+    {
+        return Attribute::make(get: fn (string $valeur) => substr($valeur, 0, 5));
     }
 
     public function patient(): BelongsTo

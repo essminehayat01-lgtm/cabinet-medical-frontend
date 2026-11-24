@@ -1,5 +1,6 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useNotifications } from '../../hooks/useNotification';
 import NotificationBell from '../NotificationBell';
 import NotificationToast from '../NotificationToast';
 import './Layout.css';
@@ -9,10 +10,13 @@ function Layout() {
   const navigate = useNavigate();
   const estMedecin = user.role === 'medecin';
 
+  const { notifications, nouvelle, marquerLues, fermerNouvelle } =
+    useNotifications(estMedecin);
+
   const handleLogout = async () => {
-  await logout();
-  navigate('/login');
-};
+    await logout();
+    navigate('/login');
+  };
 
   const classeLien = ({ isActive }) => (isActive ? 'lien actif' : 'lien');
 
@@ -25,7 +29,9 @@ function Layout() {
 
   return (
     <div className="app">
-      {estMedecin && <NotificationToast />}
+      {estMedecin && (
+        <NotificationToast notification={nouvelle} onFermer={fermerNouvelle} />
+      )}
 
       <aside className="sidebar">
         <div className="sidebar-logo">🩺 Cabinet Médical</div>
@@ -44,7 +50,9 @@ function Layout() {
       <div className="contenu">
         <header className="topbar">
           <div className="topbar-droite">
-            {estMedecin && <NotificationBell />}
+            {estMedecin && (
+              <NotificationBell notifications={notifications} onMarquerLues={marquerLues} />
+            )}
 
             <div className="profil">
               <div className="avatar">{initiales}</div>

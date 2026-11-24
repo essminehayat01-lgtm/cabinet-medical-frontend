@@ -1,53 +1,67 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useData } from '../../context/DataContext';
+import api from '../../api/api';
+
+const VIDE = { nom: '', prenom: '', sexe: '', date_naissance: '', telephone: '', adresse: '' };
 
 function PatientForm() {
   const { id } = useParams();
   const modeEdition = Boolean(id);
-
-  const { patients, ajouterPatient, modifierPatient } = useData();
   const navigate = useNavigate();
 
-  const patient = modeEdition ? patients.find(p => p.id === Number(id)) : null;
-
-  const [form, setForm] = useState(
-    patient
-      ? { ...patient }
-      : { nom: '', prenom: '', sexe: '', dateNaissance: '', telephone: '', adresse: '' }
-  );
+  const [form, setForm] = useState(VIDE);
   const [erreurs, setErreurs] = useState({});
+  const [chargement, setChargement] = useState(modeEdition);
 
-  if (modeEdition && !patient) return <p>Patient introuvable.</p>;
+  useEffect(() => {
+    if (!modeEdition) return;
+
+    api
+      .get('/patients/' + id)
+      .then(res =>
+        setForm({
+          nom: res.data.nom,
+          prenom: res.data.prenom,
+          sexe: res.data.sexe,
+          date_naissance: res.data.date_naissance,
+          telephone: res.data.telephone,
+          adresse: res.data.adresse || '',
+        })
+      )
+      .catch(() => navigate('/patients'))
+      .finally(() => setChargement(false));
+  }, [id, modeEdition, navigate]);
 
   const handleChange = e => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const valider = () => {
-    const e = {};
-    if (form.nom.trim().length < 2) e.nom = 'Nom obligatoire (2 caractères minimum)';
-    if (form.prenom.trim().length < 2) e.prenom = 'Prénom obligatoire (2 caractères minimum)';
-    if (!form.sexe) e.sexe = 'Sexe obligatoire';
-    if (!form.dateNaissance) e.dateNaissance = 'Date de naissance obligatoire';
-    if (!/^0\d{9}$/.test(form.telephone)) e.telephone = 'Téléphone invalide (10 chiffres, commence par 0)';
-    return e;
-  };
-
-  const handleSubmit = e => {
+  const handleSubmit = async e => {
     e.preventDefault();
-    const e2 = valider();
-    setErreurs(e2);
-    if (Object.keys(e2).length > 0) return;
+    setErreurs({});
 
-    if (modeEdition) {
-      modifierPatient(patient.id, form);
-      navigate('/patients');
-    } else {
-      const nouvelId = ajouterPatient(form);
-      navigate('/rendez-vous/ajouter/' + nouvelId);
+    try {
+      if (modeEdition) {
+        await api.put('/patients/' + id, form);
+        navigate('/patients');
+      } else {
+        const res = await api.post('/patients', form);
+        navigate('/rendez-vous/ajouter/' + res.data.id);
+      }
+    } catch (err) {
+      if (err.response && err.response.status === 422) {
+        const erreursLaravel = {};
+        Object.entries(err.response.data.errors).forEach(([champ, messages]) => {
+          erreursLaravel[champ] = messages[0];
+        });
+        setErreurs(erreursLaravel);
+      } else {
+        setErreurs({ general: 'Une erreur est survenue.' });
+      }
     }
   };
+
+  if (chargement) return <p>Chargement...</p>;
 
   return (
     <form className="form" onSubmit={handleSubmit}>
@@ -66,13 +80,16 @@ function PatientForm() {
       </select>
       {erreurs.sexe && <p className="erreur">{erreurs.sexe}</p>}
 
-      <input className="champ" name="dateNaissance" type="date" value={form.dateNaissance} onChange={handleChange} />
-      {erreurs.dateNaissance && <p className="erreur">{erreurs.dateNaissance}</p>}
+      <input className="champ" name="date_naissance" type="date" value={form.date_naissance} onChange={handleChange} />
+      {erreurs.date_naissance && <p className="erreur">{erreurs.date_naissance}</p>}
 
       <input className="champ" name="telephone" placeholder="Téléphone" value={form.telephone} onChange={handleChange} />
       {erreurs.telephone && <p className="erreur">{erreurs.telephone}</p>}
 
       <input className="champ" name="adresse" placeholder="Adresse" value={form.adresse} onChange={handleChange} />
+      {erreurs.adresse && <p className="erreur">{erreurs.adresse}</p>}
+
+      {erreurs.general && <p className="erreur">{erreurs.general}</p>}
 
       <div className="boutons">
         <button className="btn btn-primary" type="submit">

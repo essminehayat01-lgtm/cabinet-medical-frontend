@@ -4,12 +4,11 @@ export function exporterOrdonnancePDF(ordonnance, patient) {
   const doc = new jsPDF();
   let y = 20;
 
-  // En-tête
   doc.setFontSize(18);
   doc.text('Cabinet médical', 105, y, { align: 'center' });
   y += 8;
   doc.setFontSize(12);
-  doc.text(ordonnance.medecinNom, 105, y, { align: 'center' });
+  doc.text(ordonnance.medecin ? ordonnance.medecin.nom : '', 105, y, { align: 'center' });
   y += 6;
   doc.line(20, y, 190, y);
   y += 14;
@@ -18,16 +17,14 @@ export function exporterOrdonnancePDF(ordonnance, patient) {
   doc.text('ORDONNANCE', 105, y, { align: 'center' });
   y += 14;
 
-  // Infos patient
   doc.setFontSize(12);
   doc.text(`Date : ${ordonnance.date}`, 20, y);
   y += 8;
   doc.text(`Patient : ${patient.nom} ${patient.prenom}`, 20, y);
   y += 8;
-  doc.text(`Né(e) le : ${patient.dateNaissance}`, 20, y);
+  doc.text(`Né(e) le : ${patient.date_naissance}`, 20, y);
   y += 14;
 
-  // Médicaments
   doc.setFont('helvetica', 'bold');
   doc.text('Prescription :', 20, y);
   doc.setFont('helvetica', 'normal');
@@ -46,7 +43,6 @@ export function exporterOrdonnancePDF(ordonnance, patient) {
     y += 8;
   });
 
-  // Remarques
   if (ordonnance.remarques) {
     y += 6;
     doc.setFont('helvetica', 'bold');
@@ -58,7 +54,6 @@ export function exporterOrdonnancePDF(ordonnance, patient) {
     y += lignes.length * 6;
   }
 
-  // Signature
   y += 20;
   if (y > 270) {
     doc.addPage();

@@ -51,3 +51,13 @@
   color: #64748b;
   border: 1px dashed #cbd5e1;
 }
+.cal-actions { display: flex; gap: 4px; margin-top: 4px; }
+.btn-mini {
+  padding: 2px 6px;
+  font-size: 11px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.cal-ferme { background: #f1f5f9; }
+.cal-aller { padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 6px; }

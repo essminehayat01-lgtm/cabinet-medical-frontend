@@ -217,3 +217,24 @@ body {
   font-size: 13px;
   margin-top: 8px;  
 }
+.creneaux { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.creneau {
+  padding: 8px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+}
+.creneau:hover { background: #f1f5f9; }
+.creneau.actif { background: #2563eb; color: white; border-color: #2563eb; }
+.rdv-form { max-width: 640px; }
+
+.form-large { max-width: 700px; }
+.form-large label { display: block; font-weight: bold; margin: 12px 0 4px; }
+.ligne-med {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr auto;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.ligne-med .champ { margin-bottom: 0; }
